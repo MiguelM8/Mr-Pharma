@@ -21,7 +21,7 @@ abstract class Util {
             content: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                CircularProgressIndicator(),
+                const CircularProgressIndicator(),
                 Text(msg)
               ],
             )
@@ -36,10 +36,10 @@ abstract class Util {
         context:  ctx,
         builder: (context){
           return AlertDialog(
-            title: Text('Alerta'),
+            title: const Text('Alerta'),
             content: Text(msg),
             actions: [
-              TextButton(onPressed: () => popDialog(ctx), child: Text('Ok'))
+              TextButton(onPressed: () => popDialog(ctx), child: const Text('Ok'))
             ],
           );
         });
@@ -50,18 +50,18 @@ abstract class Util {
       context: ctx,
       builder: (context) {
         return AlertDialog(
-          title: Text('Confirmacion'),
+          title: const Text('Confirmacion'),
           content: Text(msg),
           actions: [
             TextButton(
               onPressed: () =>
                   Navigator.of(context, rootNavigator: true).pop(false),
-              child: Text('No'),
+              child: const Text('No'),
             ),
             TextButton(
               onPressed: () =>
                   Navigator.of(context, rootNavigator: true).pop(true),
-              child: Text('Si'),
+              child: const Text('Si'),
             ),
           ],
         );
@@ -74,7 +74,7 @@ abstract class Util {
     String data = await showDialog(context: ctx, builder: (context){
         TextEditingController controller = TextEditingController();
         return AlertDialog(
-            title: Text('Ingrese los datos'),
+            title: const Text('Ingrese los datos'),
             content: TextFormField(
               autofocus: true,
               controller: controller,
@@ -85,18 +85,23 @@ abstract class Util {
               TextButton(
                 onPressed: () => Navigator.of(context, rootNavigator: true)
                     .pop(''),
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context, rootNavigator: true)
                     .pop(controller.text),
-                child: Text('Confirmar'),
+                child: const Text('Confirmar'),
               ),
             ],
         );
     });
     return int.tryParse(data);
   }
+
+  static void redirect(BuildContext ctx, StatefulWidget land) => Navigator.push(
+      ctx, MaterialPageRoute(builder: (ctx) => land)
+  );
+
 }
 
 

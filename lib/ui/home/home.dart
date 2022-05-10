@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:mr_pharma/ui/widgets/common.dart';
 
+
+import 'login.dart';
+//menu
+import '../menus/products/menu-product.dart';
+import '../menus/products/product-list.dart';
+
+//categorias
+import '../menus/categories/menu-category.dart';
+import '../menus/categories/category-list.dart';
+
+
+//proveedores
+import '../menus/suppliers/menu-suppliers.dart';
+import '../menus/suppliers/supplier-list.dart';
+
+
+import '../../util/util.dart';
 
 
 class Home extends StatefulWidget{
 
   final String user;
-
   const Home(this.user, {Key? key}) : super(key: key);
 
   @override
@@ -20,51 +35,134 @@ class HomeState extends State<Home>{
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey.shade200,
-        appBar: AppBar(backgroundColor: Colors.orangeAccent, toolbarHeight: 70),
-        body: Wrap(
-          alignment: WrapAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 50, bottom: 60),
-              child: Container(
-                  height: 70,
-                  width: 300,
-                  color: Colors.orangeAccent,
-                  child: Center(
-                    child: Text("Bienvenido @${widget.user}",
-                        style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold)),
-                  )
-              ),
-            ),
-            Center(
-              child: Wrap(
-                spacing: 150,
-                runSpacing: 30,
-                alignment: WrapAlignment.center,
-                children: [
-                  CustomButton("Inventario", Colors.blueGrey, 350, 65, ()=>{}),
-                  CustomButton("Usuarios", Colors.blueGrey, 350, 65, ()=>{}),
-                  CustomButton("Proveedores", Colors.blueGrey, 350, 65, ()=>{}),
-                  CustomButton("Acerca de", Colors.blueGrey, 350, 65, ()=>{}),
-                ],
-              ),
+      //backgroundColor: Colors.grey.shade200,
+        appBar: AppBar(
+          backgroundColor: Colors.green,
+          toolbarHeight: 70,
+          actions: [
+            IconButton(icon: const Icon(Icons.logout),
+                onPressed: () => Util.redirect(context, Login())),
+          ]),
 
-            )
-          ]
+
+        body: SingleChildScrollView(
+          primary: false,
+          reverse: true,
+          scrollDirection: Axis.vertical,
+          child: Column(
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 30.0, bottom: 50),
+                      child: Container(
+                          height: 75,
+                          width: 325,
+                          color: Colors.green,
+                          child: Center(
+                            child: Text(
+                                "Bienvenido @${widget.user.toUpperCase()}",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold
+                                )),
+                          )
+                      ),
+                    ),
+                  ],
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 50),
+                  child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 25,
+                      runSpacing: 30,
+                      children: [
+                        TileMain("Crear Producto", Icons.add_box,
+                            () => Util.redirect(context, const ProdMenu(-1))),
+
+                        TileMain("Crear Proveedores", Icons.group_add,
+                                () => Util.redirect(context, const SupMenu(-1))),
+
+                        TileMain("Crear categorias", Icons.add_to_photos,
+                                () => Util.redirect(context, const CatMenu(-1))),
+
+
+                        TileMain("Ver inventario", Icons.wysiwyg,
+                                ()=>Util.redirect(context, ProdList(false))),
+
+                        TileMain("Ver categorias", Icons.category,
+                                ()=> Util.redirect(context, CatList(false))),
+
+                        TileMain("Ver proveedores", Icons.group,
+                                () => Util.redirect(context, SupList(false))),
+
+
+
+                        TileMain("Acerca de", Icons.help,
+                                ()=> Util.showAlert(context,
+
+                                    "INTEGRANTES:\n"
+                                    "\nManuel Miguel Miguel (4090-19-9063)"
+                                    "\nRaúl Botzoc Mérida (4090-19-7994)"
+                                    "\n\nCURSO:\n"
+                                    "\nProgramación III"
+                                )),
+                      ]),
+                )
+            ]),
         )
     );
   }
 
-
-  void redirect(StatefulWidget page) =>
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page))
-        .then((value)=> setState((){
-    }));
 }
 
+//widgets
+class TileMain extends StatelessWidget{
 
+  final String text;
+  final IconData icon;
+  final VoidCallback action;
+
+  const TileMain(this.text, this.icon, this.action, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: action,
+      child: Ink(
+        height: 160,
+        width: 160,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:  [
+            Icon(icon,
+                color: Colors.green, size: 50),
+            Text(text, style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 18,
+                fontWeight: FontWeight.bold
+            )),
+          ],
+        ),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(3)),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 3,
+                  blurRadius: 4,
+                  offset: const Offset(0, 3)
+              )
+            ]
+        ),
+      ),
+    );
+  }
+}

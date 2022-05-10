@@ -6,7 +6,7 @@ class SearchWidget extends StatelessWidget{
   final String hint;
   final ValueChanged<String> onChanged;
 
-  SearchWidget(this.hint, this.onChanged);
+  const SearchWidget(this.hint, this.onChanged, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,37 @@ class SearchWidget extends StatelessWidget{
   }
 }
 
+class InputDropdown extends StatelessWidget{
 
+  final List<DropdownMenuItem<String>> items;
+  final String? selected;
+  final ValueChanged<String?> onChange;
+
+  const InputDropdown(this.selected, this.onChange,
+      this.items, {Key? key}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 60,
+        width: 350,
+        padding: const EdgeInsets.only(left: 10),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey)
+        ),
+        child: Center(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton(
+                value: selected,
+                isExpanded: true,
+                enableFeedback: true,
+                items: items,
+                onChanged: onChange,
+            )),
+        ));
+  }
+}
 
 
 class CustomButton extends StatelessWidget{
@@ -43,7 +73,11 @@ class CustomButton extends StatelessWidget{
   final double width, height;
   final VoidCallback action;
 
-  CustomButton(this.text, this.color, this.width, this.height, this.action);
+  const CustomButton(
+        this.text, this.color, this.width,
+        this.height, this.action, {Key? key}
+      ) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +105,13 @@ class CustomButton extends StatelessWidget{
 
 class InputData extends StatelessWidget{
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String hint;
   final bool enabled;
 
-  InputData(this.hint, this.controller, this.enabled);
+  const InputData(this.hint, this.controller,
+        this.enabled, {Key? key}
+      ) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -83,11 +119,9 @@ class InputData extends StatelessWidget{
         height: 60,
         width: 350,
         padding: const EdgeInsets.only(left: 10),
-       // padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.grey)
         ),
-
         child:  Center(
           child: TextFormField(
             enabled: enabled,
@@ -97,12 +131,16 @@ class InputData extends StatelessWidget{
                 border: InputBorder.none,
                 filled: false,
                 hintStyle: TextStyle(color: Colors.grey.shade400),
-                fillColor: Colors.white),
+                fillColor: Colors.white
+            ),
           ),
         )
     );
   }
 }
+
+
+
 
 
 class InputNumeric extends StatelessWidget{
@@ -112,7 +150,9 @@ class InputNumeric extends StatelessWidget{
   final bool integers;
 
 
-  InputNumeric(this.hint, this.controller, this.integers);
+  const InputNumeric(this.hint, this.controller,
+        this.integers, {Key? key}
+      ) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +167,10 @@ class InputNumeric extends StatelessWidget{
         child:  TextFormField(
           controller: controller,
           keyboardType: TextInputType.number,
-          inputFormatters: [integers ? FilteringTextInputFormatter.digitsOnly :
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.)?(\d+)?$'))],
+          inputFormatters: [integers ?
+              FilteringTextInputFormatter.digitsOnly :
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+(\.)?(\d+)?$'))
+          ],
 
           decoration: InputDecoration(
               border: InputBorder.none,
