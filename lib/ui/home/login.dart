@@ -8,7 +8,7 @@ TextEditingController
   user = TextEditingController(),
   pass = TextEditingController();
 
-
+//clase de login
 class Login extends StatefulWidget{
 
   LoginState createState() => LoginState();
@@ -16,6 +16,7 @@ class Login extends StatefulWidget{
 
 class LoginState extends State<Login>{
 
+  //usamos para las superclases
   @override
   Widget build(BuildContext context) {
     return Scaffold(
