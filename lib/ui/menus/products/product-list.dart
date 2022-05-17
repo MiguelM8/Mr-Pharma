@@ -101,8 +101,8 @@ class ProdListState extends State<ProdList>{
               return ProdMenu(product.id, product);
           })).then((value){
               //retornamos de editar producto.
-              loaded = false;
-              cargarProductos();
+            setState(() => loaded = false);
+            cargarProductos();
           })
     );
   }

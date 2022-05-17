@@ -152,6 +152,7 @@ class ProdMenuState extends State<ProdMenu>{
         );
         setState(() { idProd = idGenerado;});
         Util.popDialog(context);
-    }
+        FocusManager.instance.primaryFocus?.unfocus();
+  }
 }
 

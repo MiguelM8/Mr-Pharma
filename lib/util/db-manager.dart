@@ -42,7 +42,7 @@ class DBMan{
         var con=_getCon();
         await con.open();
 
-
+        //llamado a procedimiento.
         var res = await con.query('call insertar_producto(@id, @nm, @img, @prc, @sal)', substitutionValues: {
             "id": id,
             "nm": name,
@@ -63,7 +63,7 @@ class DBMan{
 
         await con.open();
         var response = await con.query('select * from lista_productos');
-
+        //lamado a la vista.
         for (var element in response) {
             var id = element[0];
             var prodName = element[1];
