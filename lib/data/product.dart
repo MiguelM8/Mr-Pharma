@@ -1,8 +1,8 @@
 class Product{
 
   int id;
-  String name, category;
-  String? url;
+  String name;
+  String? url, category;
   double price;
 
   Product(

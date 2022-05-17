@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
 
 import '../../../util/api-util.dart';
@@ -10,39 +11,54 @@ import '../../widgets/common.dart';
 
 
 class ProdMenu extends StatefulWidget{
-    final int prod;
-    const ProdMenu(this.prod, {Key? key}) : super(key: key);
+    final int id;
+    final Product? product;
+
+    const ProdMenu(this.id, this.product, {Key? key}) : super(key: key);
 
     @override
     ProdMenuState createState() => ProdMenuState();
 }
 
 class ProdMenuState extends State<ProdMenu>{
+    //product data.
+    int idProd = -1;
+    File? img;
+    String? category;
+    Product? product;
+    ImageProvider? imgProv;
+    //controller
+    List<TextEditingController> texts =
+    List.generate(2, (i) => TextEditingController());
 
-  int idProd = -1;
-  File? img;
-  Product? product;
-  ImageProvider imgProv = const AssetImage('assets/add_img.png');
-  String? category ;
 
 
-  List<String> xd = List.generate(4, (i) => "xd: $i");
-  List<TextEditingController> texts = List.generate(2,
-          (i) => TextEditingController()
-  );
+    void llenarCampos(){
+      var url = product?.url;
+      var name = product?.name;
+      var pr = product?.price;
 
-  @override
-  void initState() {
-    idProd = widget.prod;
-    product = null;
-    img = null;
-    //imgProv = product.url == null ?  img == null ? imgProv = const AssetImage('assets/add_img.png') : imgProv = FileImage(img) : imgProv = NetworkImage(product.url);
-    if(product != null){
-      texts[0].text = '${product?.name}';
-      texts[1].text = '${product?.price}';
+      imgProv = const AssetImage('assets/add_img.png');
+
+      if(url != null){
+        imgProv = NetworkImage(url);
+      }
+      if(name != null){
+          texts[0].text = name;
+      }
+      if(pr != null){
+          texts[1].text = '$pr';
+      }
     }
-    super.initState();
-  }
+
+
+    @override
+    void initState() {
+      idProd = widget.id;
+      product = widget.product;
+      super.initState();
+      llenarCampos();
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +80,6 @@ class ProdMenuState extends State<ProdMenu>{
                       crossAxisAlignment: WrapCrossAlignment.center,
 
                       children: [
-                        //fix: https://github.com/flutter/flutter/issues/42901#issuecomment-708050484
                         CircleAvatar(
                         radius: 60,
                         backgroundImage:  imgProv,
@@ -78,8 +93,8 @@ class ProdMenuState extends State<ProdMenu>{
                                 .then((value) => setState(() {
                                     if(value != null){
                                         imgProv = FileImage(
-                                            img = File(value.path)
-                                        );
+                                            img = File(value.path
+                                        ));
                                     }
                                 })
                               ),
@@ -90,13 +105,14 @@ class ProdMenuState extends State<ProdMenu>{
                         InputData("Nombre del producto:", texts[0], true),
                         InputDropdown(category, (val) => setState(() {
                                 category = val;
-                            }),
-                            xd.map((String value) =>
+                            }), []
+                        /*    xd.map((String value) =>
                                 DropdownMenuItem(
                                     value: value,
                                     child: Text(value)
                                 )
-                            ).toList()
+                            ).toList()*/
+
                         ),
                         InputNumeric("Precio de venta:", texts[1], false),
                         CustomButton("Guardar", Colors.green, 300, 50, saveProduct)
@@ -114,24 +130,27 @@ class ProdMenuState extends State<ProdMenu>{
           Util.showSnack(context, 'Campos limpiados');
           return;
       }
-      Util.showLoading(context, 'Eliminando producto...');
-      Util.popDialog(context);
   }
 
 
   void saveProduct() async {
 
         String name = texts[0].text.trim();
-        String cat = texts[1].text.trim(); //get numeric categories.
         String? imgUrl = product?.url;
-        double price = double.tryParse(texts[2].text) ?? 0;
+        double price = double.tryParse(texts[1].text) ?? 0;
 
-        if(name.isEmpty || cat.isEmpty || price < 0){
+        if(name.isEmpty || price < 0){
             Util.showAlert(context, 'Verifica los datos ingresados por favor');
             return;
         }
         Util.showLoading(context, 'Guardando producto...');
-        imgUrl ??= await ApiUtil.uploadImage(img);
+        if(img != null){
+            imgUrl = await ApiUtil.uploadImage(img);
+        }
+        var idGenerado = await DBMan.insertar_editar_producto(
+            idProd, name, imgUrl, price
+        );
+        setState(() { idProd = idGenerado;});
         Util.popDialog(context);
     }
 }

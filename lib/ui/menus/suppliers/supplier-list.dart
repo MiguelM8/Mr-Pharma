@@ -8,16 +8,12 @@ import '../../widgets/common.dart';
 import 'menu-suppliers.dart';
 
 
-bool productPicker = false;
 
 
 class SupList extends StatefulWidget{
 
-  final bool picker;
 
-  SupList(this.picker, {Key? key}) : super(key: key){
-      productPicker = picker;
-  }
+  const SupList({Key? key}) : super(key: key);
 
 
   @override
@@ -76,9 +72,7 @@ class SupListState extends State<SupList>{
         title: Text(sup.provider),
         subtitle: Text("ID: ${sup.id}"),
         trailing: const Icon(Icons.arrow_forward_ios_sharp),
-        onTap: () => productPicker ?
-            Navigator.pop(ctx, sup) :
-            Navigator.push(ctx, MaterialPageRoute(
+        onTap: () => Navigator.push(ctx, MaterialPageRoute(
                 builder: (context) => SupMenu(sup.id)
               ))
             .then((value) => setState(() {
@@ -91,7 +85,6 @@ class SupListState extends State<SupList>{
 
   bool matchProd(String search, Product prod){
       search = search.toLowerCase();
-      return prod.name.toLowerCase().contains(search) ||
-            prod.category.toLowerCase().contains(search);
+      return prod.name.toLowerCase().contains(search);
   }
 }

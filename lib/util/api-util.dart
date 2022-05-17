@@ -17,7 +17,7 @@ class ApiUtil {
             headers: {
               'Authorization': 'Client-ID ${ConfigReader.getImgurApiKey()}'
             }, body: {
-            'image': image
+                'image': image
             }
         );
 

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 class ConfigReader {
 
+  ConfigReader();
+
   static Map<String, dynamic> _config = {};
 
 

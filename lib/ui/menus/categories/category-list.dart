@@ -7,16 +7,11 @@ import 'menu-category.dart';
 
 
 
-bool catPicker = false;
-
 
 class CatList extends StatefulWidget{
 
-  final bool picker;
 
-  CatList(this.picker, {Key? key}) : super(key: key){
-    catPicker = picker;
-  }
+  const CatList({Key? key}) : super(key: key);
 
 
   @override
@@ -75,9 +70,7 @@ class CatListState extends State<CatList>{
         title: Text(cat.category),
         subtitle: Text("ID: ${cat.id}"),
         trailing: const Icon(Icons.arrow_forward_ios_sharp),
-        onTap: () => catPicker ?
-          Navigator.pop(context, cat) :
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) =>
           CatMenu(cat.id))).then((value) => setState(() {
             filtered = catList;
          }))

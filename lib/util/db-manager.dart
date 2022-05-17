@@ -1,3 +1,4 @@
+import 'package:mr_pharma/data/product.dart';
 import 'package:postgres/postgres.dart';
 
 class DBMan{
@@ -17,10 +18,6 @@ class DBMan{
 
     //metodo para verificar si existe usaurio
     static Future<bool> doLogin(String user, String password) async{
-        /*
-            usuario: Miguel
-            clave: miguel123
-         */
         var con = _getCon();
         bool puede = false;
         //en caso existe el usaurio se accede a la aplicacion
@@ -39,6 +36,46 @@ class DBMan{
           }
         }
         return puede;
+    }
+
+    static Future<int> insertar_editar_producto(int id, String name, String? image, double price) async{
+        var con=_getCon();
+        await con.open();
+
+
+        var res = await con.query('call insertar_producto(@id, @nm, @img, @prc, @sal)', substitutionValues: {
+            "id": id,
+            "nm": name,
+            "img": image,
+            "prc": price,
+            "sal": 0,
+        });
+        await con.close();
+
+        var salida = res[0][0];
+
+        return salida;
+    }
+
+    static Future<List<Product>> obtenerProductos() async{
+        var con=_getCon();
+        List<Product> lista = [];
+
+        await con.open();
+        var response = await con.query('select * from lista_productos');
+
+        for (var element in response) {
+            var id = element[0];
+            var prodName = element[1];
+            var cat = element[5];
+            var imgUrl = element[2];
+            var price = element[3];
+            lista.add(Product(id, prodName, cat, imgUrl, double.parse(price)));
+        }
+
+        await con.close();
+
+        return lista;
     }
 }
 

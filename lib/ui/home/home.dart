@@ -50,7 +50,6 @@ class HomeState extends State<Home>{
 
         body: SingleChildScrollView(
           primary: false,
-          reverse: true,
           scrollDirection: Axis.vertical,
           child: Column(
               children: [
@@ -84,7 +83,7 @@ class HomeState extends State<Home>{
                       runSpacing: 30,
                       children: [
                         TileMain("Crear Producto", Icons.add_box,
-                            () => Util.redirect(context, const ProdMenu(-1))),
+                            () => Util.redirect(context, const ProdMenu(-1, null))),
 
                         TileMain("Crear Proveedores", Icons.group_add,
                                 () => Util.redirect(context, const SupMenu(-1))),
@@ -92,16 +91,14 @@ class HomeState extends State<Home>{
                         TileMain("Crear categorias", Icons.add_to_photos,
                                 () => Util.redirect(context, const CatMenu(-1))),
 
-
                         TileMain("Ver inventario", Icons.wysiwyg,
-                                ()=>Util.redirect(context, ProdList(false))),
+                                ()=>Util.redirect(context, const ProdList())),
 
                         TileMain("Ver categorias", Icons.category,
-                                ()=> Util.redirect(context, CatList(false))),
+                                ()=> Util.redirect(context, const CatList())),
 
                         TileMain("Ver proveedores", Icons.group,
-                                () => Util.redirect(context, SupList(false))),
-
+                                () => Util.redirect(context, const SupList())),
 
 
                         TileMain("Acerca de", Icons.help,

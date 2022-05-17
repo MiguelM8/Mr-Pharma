@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
-import '../../../util/util.dart';
 import '../../../data/product.dart';
 import '../../widgets/common.dart';
 import 'menu-product.dart';
 
 
-bool productPicker = false;
+
 
 
 class ProdList extends StatefulWidget{
 
-  final bool picker;
 
-  ProdList(this.picker, {Key? key}) : super(key: key){
-      productPicker = picker;
-  }
+  const ProdList({Key? key}) : super(key: key);
+
+
 
   @override
   ProdListState createState() => ProdListState();
@@ -25,14 +24,23 @@ class ProdList extends StatefulWidget{
 class ProdListState extends State<ProdList>{
 
   List<Product> prodList = [], filtered = [];
+  bool loaded = false;
+
+  Future<void> cargarProductos() async{
+      var productos = await DBMan.obtenerProductos();
+      prodList.clear(); filtered.clear();
+      setState(() {
+        prodList.addAll(productos);
+        filtered.addAll(productos);
+        loaded = true;
+      });
+  }
+
 
   @override
   void initState() {
-    for (var i=0; i < 1000; i ++){
-        prodList.add(Product(i, "test $i", "test", "", 100));
-    }
-    filtered = prodList;
     super.initState();
+    cargarProductos();
   }
 
   @override
@@ -41,7 +49,7 @@ class ProdListState extends State<ProdList>{
         appBar: AppBar(backgroundColor: Colors.green,
           bottom: PreferredSize(
                     preferredSize: const Size.fromHeight(60),
-                    child: SearchWidget("Buscar proveedor", (text) =>
+                    child: SearchWidget("Buscar producto", (text) =>
                       setState(() {
                           filtered = prodList
                               .where((element) => matchProd(text, element))
@@ -50,7 +58,7 @@ class ProdListState extends State<ProdList>{
                 )),
         ),
 
-        body: Column(
+        body: loaded ? Column(
             children: [
                 Expanded(
                   child: ListView.builder(itemBuilder: (context, index){
@@ -60,35 +68,56 @@ class ProdListState extends State<ProdList>{
                   }, itemCount: filtered.length*2),
                 )
             ],
+        ) : Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                SizedBox(
+                    width: 70,
+                    height: 70,
+                    child: CircularProgressIndicator(color: Colors.green,)
+                ),
+              ],
+          ),
         )
     );
   }
 
   ListTile buildListTile(context, leadingIcon, Product product) {
 
+    var category = product.category ?? 'Sin categoria';
+
     return ListTile(
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
             backgroundColor: Colors.white,
-            //backgroundImage: img == null ? const NetworkImage('') : NetworkImage(img),
-            backgroundImage: AssetImage('assets/add_img.png'),
+            backgroundImage: getImage(product),
             radius: 25
         ),
         title: Text(product.name),
-        subtitle: const Text("Existencias: "),
+        subtitle: Text(category),
         trailing: const Icon(Icons.arrow_forward_ios_sharp),
-        onTap: () => productPicker ? Navigator.pop(context, product) :  Navigator.push(context,
-             MaterialPageRoute(builder: (context) =>
-              ProdMenu(product.id))).then((value) => setState(() {
-                  //prodList = PData.getProducts().values.toList();
-                  filtered = prodList;
-          }))
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context){
+              return ProdMenu(product.id, product);
+          })).then((value){
+              //retornamos de editar producto.
+              loaded = false;
+              cargarProductos();
+          })
     );
   }
 
+  ImageProvider getImage(Product prod){
+    String? img = prod.url;
+    ImageProvider prov = const AssetImage('assets/add_img.png');
+    if(img != null){
+        prov = NetworkImage(img);
+    }
+    return prov;
+  }
 
   bool matchProd(String search, Product prod){
       search = search.toLowerCase();
-      return prod.name.toLowerCase().contains(search) ||
-            prod.category.toLowerCase().contains(search);
+      return prod.name.toLowerCase().contains(search);
   }
 }
