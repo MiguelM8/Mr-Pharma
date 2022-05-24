@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mr_pharma/data/category.dart';
 
 import '../../../ui/widgets/common.dart';
 import '../../../util/util.dart';
@@ -6,7 +7,8 @@ import '../../../util/util.dart';
 
 class CatMenu extends StatefulWidget{
   final int catId;
-  const CatMenu(this.catId, {Key? key}) : super(key: key);
+  final Category? category;
+  const CatMenu(this.catId, this.category, {Key? key}) : super(key: key);
 
   @override
   CatMenuState createState() => CatMenuState();
@@ -14,15 +16,15 @@ class CatMenu extends StatefulWidget{
 
 class CatMenuState extends State<CatMenu>{
   int catId = -1;
-  List<TextEditingController> texts = List.generate(
-      2, (i) => TextEditingController()
-  );
+  List<TextEditingController> texts = List.generate(2, (i) => TextEditingController());
 
   @override
   void initState() {
     catId = widget.catId;
     super.initState();
+    llenarCampos();
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,14 @@ class CatMenuState extends State<CatMenu>{
     Util.showLoading(context, 'Guardando producto...');
     Util.popDialog(context);
   }
+
+  void llenarCampos(){
+     var cat = widget.category;
+     if(cat != null){
+        texts[1].text = cat.category;
+     }
+  }
+
 
   void cleanText(){
       for(var element in texts){

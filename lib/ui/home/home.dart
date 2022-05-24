@@ -86,10 +86,10 @@ class HomeState extends State<Home>{
                             () => Util.redirect(context, const ProdMenu(-1, null))),
 
                         TileMain("Crear Proveedores", Icons.group_add,
-                                () => Util.redirect(context, const SupMenu(-1))),
+                                () => Util.redirect(context, const SupMenu(-1, null))),
 
                         TileMain("Crear categorias", Icons.add_to_photos,
-                                () => Util.redirect(context, const CatMenu(-1))),
+                                () => Util.redirect(context, const CatMenu(-1, null))),
 
                         TileMain("Ver inventario", Icons.wysiwyg,
                                 ()=>Util.redirect(context, const ProdList())),

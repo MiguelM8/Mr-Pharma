@@ -1,8 +1,12 @@
+import 'package:mr_pharma/data/category.dart';
 import 'package:mr_pharma/data/product.dart';
+import 'package:mr_pharma/data/supplier.dart';
 import 'package:postgres/postgres.dart';
 
 class DBMan{
   ///xFREVPbXyt4Lnj$
+
+  DBMan._();
 
   //parte de codigo en la cual hicimos la conexion con BD Postgre
     static PostgreSQLConnection _getCon(){
@@ -57,7 +61,49 @@ class DBMan{
         return salida;
     }
 
-    static Future<List<Product>> obtenerProductos() async{
+    static Future<int> insertar_editar_proveedor(int idprov, String proveedor, 
+        String nit, String rep_nombre, String rep_apellidos, 
+        String telefono, String correo) async{
+
+        var con = _getCon();
+        await con.open();
+
+        var res = await con.query('call insertar_actualizar_proveedor(@id, @prov, @nit, @rep1, @rep2, @tel, @email, @sal)', 
+        substitutionValues: {
+            "id": idprov,
+            "prov": proveedor,
+            "nit": nit,
+            "rep1": rep_nombre,
+            "rep2": rep_apellidos,
+            "tel": telefono,
+            "email": correo,
+            "sal": 0
+        });
+        await con.close();
+        var salida = res[0][0];
+        return salida;
+    }
+
+  static Future<void> insertar_actualizar_categoria(int id, String nombre) async{
+
+      var con = _getCon();
+      await con.open();
+
+      var reponse = await con.query('call insertar_categoria(@cid, @cat, @sal)', 
+      substitutionValues: {
+          "cid": id,
+          "cat": nombre,
+          "sal": 0,
+      });
+    await con.close();
+    var salida = reponse[0][0];
+    return salida;
+  }
+
+
+
+
+  static Future<List<Product>> obtenerProductos() async{
         var con=_getCon();
         List<Product> lista = [];
 
@@ -77,6 +123,45 @@ class DBMan{
 
         return lista;
     }
+
+    static Future<List<Supplier>> obtenerSuppliers() async{
+
+        List<Supplier> lista = [];
+        var con=_getCon();
+        await con.open();
+
+        var response = await con.query('select * from proveedores');
+        //lamado a la vista.
+        for (var element in response) {
+            var id = element[0];
+            var sup = element[1];
+            var nit = element[2];
+            var name = element[3];
+            var last = element[4];
+            var phone = element[5];
+            var email = element[6];
+            lista.add(Supplier(id, sup, nit, name, last, phone, email));
+        }
+
+        await con.close();
+        return lista;
+    }
+
+
+    static Future<List<Category>> obtenerCategorias() async{
+    
+      List<Category> cats = [];
+      var con=_getCon();
+      await con.open();
+      var response = await con.query('select * from tb_category');
+      for(var element in response){
+        cats.add(Category(element[0], element[1]));
+      }
+      await con.close();
+      return cats;
+    }
+
+
 }
 
 

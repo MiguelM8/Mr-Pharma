@@ -6,15 +6,9 @@ import '../../widgets/common.dart';
 import 'menu-product.dart';
 
 
-
-
-
 class ProdList extends StatefulWidget{
 
-
   const ProdList({Key? key}) : super(key: key);
-
-
 
   @override
   ProdListState createState() => ProdListState();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
 
 
@@ -8,28 +9,36 @@ import '../../widgets/common.dart';
 import 'menu-suppliers.dart';
 
 
-
-
 class SupList extends StatefulWidget{
-
-
   const SupList({Key? key}) : super(key: key);
-
-
   @override
   SupListState createState() => SupListState();
 }
 
 class SupListState extends State<SupList>{
 
-  List<Supplier> prodList = [], filtered = [];
+  List<Supplier> provList = [], filtered = [];
+  bool loaded = false;
+
+  Future<void> cargarProveedores() async{
+    var prov = await DBMan.obtenerSuppliers();
+    provList.clear(); 
+    filtered.clear();
+    
+    setState(() {
+        provList.addAll(prov);
+        filtered.addAll(prov);
+        provList.sort((a, b)=> a.id.compareTo(b.id));
+        filtered.sort((a, b)=> a.id.compareTo(b.id));
+        loaded = true;
+    });
+  }
+
 
   @override
   void initState() {
-    /*asignamos los productos cargados
-    a la lista filtrada*/
-    filtered = prodList;
     super.initState();
+    cargarProveedores();
   }
 
   @override
@@ -41,13 +50,14 @@ class SupListState extends State<SupList>{
               preferredSize: const Size.fromHeight(60),
               child: SearchWidget("Buscar proveedor", (text){
                     setState(() {
-                      //filtrar
+                      filtered = provList
+                      .where((prov) => matchProd(text, prov)).toList();
                   });
                 }
               )
           )
         ),
-        body: Column(
+        body: loaded ? Column(
             children: [
                 Expanded(
                   child: ListView.builder(itemBuilder: (context, index){
@@ -57,34 +67,43 @@ class SupListState extends State<SupList>{
                   }, itemCount: filtered.length*2),
                 )
             ],
-        )
+        ) : Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                SizedBox(
+                    width: 70,
+                    height: 70,
+                    child: CircularProgressIndicator(color: Colors.green,)
+                )]
+          ))
     );
   }
 
   ListTile buildListTile(ctx, leadIcon, Supplier sup) {
-
     return ListTile(
         leading: const CircleAvatar(
             backgroundColor: Colors.white,
-            backgroundImage: AssetImage('assets/add_img.png'),
+            backgroundImage: AssetImage('assets/supplier.png'),
             radius: 25
         ),
         title: Text(sup.provider),
         subtitle: Text("ID: ${sup.id}"),
         trailing: const Icon(Icons.arrow_forward_ios_sharp),
         onTap: () => Navigator.push(ctx, MaterialPageRoute(
-                builder: (context) => SupMenu(sup.id)
+                builder: (context) => SupMenu(sup.id, sup)
               ))
             .then((value) => setState(() {
-                  //prodList = PData.getProducts().values.toList();
-                  filtered = prodList;
+                  setState(()=>loaded = false);
+                  cargarProveedores();
           }))
     );
   }
 
 
-  bool matchProd(String search, Product prod){
+  bool matchProd(String search, Supplier prod){
       search = search.toLowerCase();
-      return prod.name.toLowerCase().contains(search);
+      return prod.provider.toLowerCase().contains(search);
   }
 }

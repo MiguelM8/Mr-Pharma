@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
 
 import '../../widgets/common.dart';
@@ -20,14 +21,31 @@ class CatList extends StatefulWidget{
 
 class CatListState extends State<CatList>{
 
-  List<Category> catList = [Category(1, 'antibioticos')],
-                  filtered = [];
+  List<Category> catList = [], filtered = [];
+  bool loaded = false;
+
+  Future<void> cargarCategorias() async{
+    var cats = await DBMan.obtenerCategorias();
+    catList.clear();
+    filtered.clear();
+    setState(() {
+        catList.addAll(cats);
+        filtered.addAll(cats);
+        catList.sort((a, b)=> a.id.compareTo(b.id));
+        filtered.sort((a, b)=> a.id.compareTo(b.id));
+        loaded = true;
+    });
+  }
+
+
 
   @override
   void initState() {
-    filtered = catList;
     super.initState();
+    cargarCategorias();
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +55,14 @@ class CatListState extends State<CatList>{
         PreferredSize(
             preferredSize: const Size.fromHeight(60),
             child: SearchWidget("Buscar categoría", (text) =>
-              setState(() {
-                filtered = catList.where((e) => matchCat(text, e)).toList();
-              })
+              setState(() => filtered = catList
+              .where((e) => matchCat(text, e))
+              .toList())
+
             )
         )
         ),
-        body: Column(
+        body: loaded ? Column(
           children: [
             Expanded(
               child: ListView.builder(itemBuilder: (context, index){
@@ -53,7 +72,17 @@ class CatListState extends State<CatList>{
               }, itemCount: filtered.length*2),
             )
           ],
-        )
+        ) : Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                SizedBox(
+                    width: 70,
+                    height: 70,
+                    child: CircularProgressIndicator(color: Colors.green,)
+                )]
+          ))
     );
   }
 
@@ -64,15 +93,16 @@ class CatListState extends State<CatList>{
     return ListTile(
         leading: const CircleAvatar(
             backgroundColor: Colors.white,
-            backgroundImage: AssetImage('assets/add_img.png'),
+            backgroundImage: AssetImage('assets/category.png'),
             radius: 25
         ),
         title: Text(cat.category),
         subtitle: Text("ID: ${cat.id}"),
         trailing: const Icon(Icons.arrow_forward_ios_sharp),
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) =>
-          CatMenu(cat.id))).then((value) => setState(() {
-            filtered = catList;
+          CatMenu(cat.id, cat))).then((value) => setState(() {
+              setState(() => loaded = false);
+              cargarCategorias();
          }))
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
+import '../../../data/supplier.dart';
 import '../../../util/util.dart';
 import '../../widgets/common.dart';
 
@@ -8,7 +10,9 @@ import '../../widgets/common.dart';
 
 class SupMenu extends StatefulWidget{
   final int provId;
-  const SupMenu(this.provId, {Key? key}) : super(key: key);
+  final Supplier? supplier;
+
+  const SupMenu(this.provId, this.supplier, {Key? key}) : super(key: key);
 
   @override
   SupMenuState createState() => SupMenuState();
@@ -16,14 +20,13 @@ class SupMenu extends StatefulWidget{
 
 class SupMenuState extends State<SupMenu>{
   int idProv = -1;
-  List<TextEditingController> texts = List.generate(
-      6, (i) => TextEditingController()
-  );
+  List<TextEditingController> texts = List.generate(6, (i) => TextEditingController());
 
   @override
   void initState() {
     idProv = widget.provId;
     super.initState();
+    llenarCampos();
   }
 
   @override
@@ -71,30 +74,53 @@ class SupMenuState extends State<SupMenu>{
       return;
     }
     Util.showLoading(context, 'Eliminando producto...');
-    /*
-      DBMan.delProduct(idProd).then((value){
-        Util.popDialog(context);
-          if(!value){
-            Util.showSnack(context, "Ha ocurrido un error");
-            return;
-          }
-          PData.removeProd(idProd);
-        Util.showAlert(context, "Producto eliminado correctamente").
-          whenComplete(() =>
-              Navigator.of(context).popUntil((route) => route.isFirst));
-      });
-       */
   }
 
 
   void saveSupplier() async {
+
     Util.showLoading(context, 'Guardando producto...');
     Util.popDialog(context);
+    
+    if(!validFields()){
+      Util.showAlert(context, 'Verifica los datos ingresados por favor');
+      return;
+    }
+    Util.showLoading(context, "Guardando proveedor");
+    var idGen = await DBMan.insertar_editar_proveedor(
+      idProv, texts[0].text, texts[1].text, 
+      texts[2].text, texts[3].text, 
+      texts[4].text,  texts[5].text
+    );
+    setState(() =>idProv = idGen);
+    Util.popDialog(context);
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+  
+
+  void llenarCampos(){
+    var supp = widget.supplier;
+    if(supp != null){
+        texts[0].text = supp.provider;
+        texts[1].text = supp.nit;
+        texts[2].text = supp.name;
+        texts[3].text = supp.lastname;
+        texts[4].text = supp.phone;
+        texts[5].text = supp.email;
+    }
   }
 
-  void loadData() async{
-
+  bool validFields(){
+    bool valid = true;
+    for(int i = 1; i <=5; i++){
+      if(texts[i].text.isEmpty){
+        valid = false;
+        break;
+      }
+    }
+    return true;
   }
+
 
   void cleanText(){
       for(var element in texts){element.clear();}
