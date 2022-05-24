@@ -1,7 +1,7 @@
-class Category{
+class PCategory{
 
     int id;
     String category;
 
-    Category(this.id, this.category);
+    PCategory(this.id, this.category);
 }

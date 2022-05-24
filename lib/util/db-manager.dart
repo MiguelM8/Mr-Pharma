@@ -42,16 +42,17 @@ class DBMan{
         return puede;
     }
 
-    static Future<int> insertar_editar_producto(int id, String name, String? image, double price) async{
+    static Future<int> insertar_editar_producto(int id, String name, String? image, double price, int catid) async{
         var con=_getCon();
         await con.open();
 
         //llamado a procedimiento.
-        var res = await con.query('call insertar_producto(@id, @nm, @img, @prc, @sal)', substitutionValues: {
+        var res = await con.query('call insertar_producto(@id, @nm, @img, @prc, @cid, @sal)', substitutionValues: {
             "id": id,
             "nm": name,
             "img": image,
             "prc": price,
+            "cid": catid,
             "sal": 0,
         });
         await con.close();
@@ -62,7 +63,7 @@ class DBMan{
     }
 
     static Future<int> insertar_editar_proveedor(int idprov, String proveedor, 
-        String nit, String rep_nombre, String rep_apellidos, 
+        String nit, String repNombre, String rep_apellidos, 
         String telefono, String correo) async{
 
         var con = _getCon();
@@ -73,7 +74,7 @@ class DBMan{
             "id": idprov,
             "prov": proveedor,
             "nit": nit,
-            "rep1": rep_nombre,
+            "rep1": repNombre,
             "rep2": rep_apellidos,
             "tel": telefono,
             "email": correo,
@@ -84,8 +85,7 @@ class DBMan{
         return salida;
     }
 
-  static Future<void> insertar_actualizar_categoria(int id, String nombre) async{
-
+  static Future<int> insertar_actualizar_categoria(int id, String nombre) async{
       var con = _getCon();
       await con.open();
 
@@ -113,10 +113,11 @@ class DBMan{
         for (var element in response) {
             var id = element[0];
             var prodName = element[1];
-            var cat = element[5];
             var imgUrl = element[2];
             var price = element[3];
-            lista.add(Product(id, prodName, cat, imgUrl, double.parse(price)));
+            var catid = element[4];
+            var cat = element[5];
+            lista.add(Product(id, prodName, imgUrl, double.parse(price), catid, cat));
         }
 
         await con.close();
@@ -148,14 +149,14 @@ class DBMan{
     }
 
 
-    static Future<List<Category>> obtenerCategorias() async{
+    static Future<List<PCategory>> obtenerCategorias() async{
     
-      List<Category> cats = [];
+      List<PCategory> cats = [];
       var con=_getCon();
       await con.open();
       var response = await con.query('select * from tb_category');
       for(var element in response){
-        cats.add(Category(element[0], element[1]));
+        cats.add(PCategory(element[0], element[1]));
       }
       await con.close();
       return cats;

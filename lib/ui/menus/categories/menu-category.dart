@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mr_pharma/data/category.dart';
+import 'package:mr_pharma/util/db-manager.dart';
 
 import '../../../ui/widgets/common.dart';
 import '../../../util/util.dart';
@@ -7,7 +8,7 @@ import '../../../util/util.dart';
 
 class CatMenu extends StatefulWidget{
   final int catId;
-  final Category? category;
+  final PCategory? category;
   const CatMenu(this.catId, this.category, {Key? key}) : super(key: key);
 
   @override
@@ -70,8 +71,16 @@ class CatMenuState extends State<CatMenu>{
 
 
   void saveCat() async {
+    String nombre = texts[1].text;
+    if(nombre.isEmpty){
+        Util.showAlert(context, "Porfavor verifica los campos");
+        return;
+    }
     Util.showLoading(context, 'Guardando producto...');
+    var idResp = await DBMan.insertar_actualizar_categoria(catId, nombre);
+    setState(()=> catId = idResp);
     Util.popDialog(context);
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void llenarCampos(){

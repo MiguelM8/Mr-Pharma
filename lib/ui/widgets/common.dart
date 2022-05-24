@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mr_pharma/data/category.dart';
 
 class SearchWidget extends StatelessWidget{
 
@@ -35,9 +37,9 @@ class SearchWidget extends StatelessWidget{
 
 class InputDropdown extends StatelessWidget{
 
-  final List<DropdownMenuItem<String>> items;
-  final String? selected;
-  final ValueChanged<String?> onChange;
+  final List<DropdownMenuItem<PCategory>> items;
+  final PCategory? selected;
+  final ValueChanged<PCategory?> onChange;
 
   const InputDropdown(this.selected, this.onChange,
       this.items, {Key? key}) : super(key: key);

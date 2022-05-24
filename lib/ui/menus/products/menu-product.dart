@@ -8,12 +8,14 @@ import '../../../util/api-util.dart';
 import '../../../util/util.dart';
 import '../../../data/product.dart';
 import '../../widgets/common.dart';
+import '../../../data/category.dart';
 
+//sin categoria.
+final noCat =  PCategory(-1, "Selecciona una categoria");
 
 class ProdMenu extends StatefulWidget{
     final int id;
     final Product? product;
-
     const ProdMenu(this.id, this.product, {Key? key}) : super(key: key);
 
     @override
@@ -21,36 +23,15 @@ class ProdMenu extends StatefulWidget{
 }
 
 class ProdMenuState extends State<ProdMenu>{
-    //product data.
+    //product data;
     int idProd = -1;
     File? img;
-    String? category;
     Product? product;
+    PCategory category = noCat;
     ImageProvider? imgProv;
     //controller
-    List<TextEditingController> texts =
-    List.generate(2, (i) => TextEditingController());
-
-
-
-    void llenarCampos(){
-      var url = product?.url;
-      var name = product?.name;
-      var pr = product?.price;
-
-      imgProv = const AssetImage('assets/add_img.png');
-
-      if(url != null){
-        imgProv = NetworkImage(url);
-      }
-      if(name != null){
-          texts[0].text = name;
-      }
-      if(pr != null){
-          texts[1].text = '$pr';
-      }
-    }
-
+    List<PCategory> categories = [noCat];
+    List<TextEditingController> texts = List.generate(2, (i) => TextEditingController());
 
     @override
     void initState() {
@@ -78,7 +59,6 @@ class ProdMenuState extends State<ProdMenu>{
                       direction: Axis.vertical,
                       spacing: 25,
                       crossAxisAlignment: WrapCrossAlignment.center,
-
                       children: [
                         CircleAvatar(
                         radius: 60,
@@ -104,15 +84,15 @@ class ProdMenuState extends State<ProdMenu>{
                         InputData('ID: $idProd', null, false),
                         InputData("Nombre del producto:", texts[0], true),
                         InputDropdown(category, (val) => setState(() {
-                                category = val;
-                            }), []
-                        /*    xd.map((String value) =>
-                                DropdownMenuItem(
+                                if(val != null){
+                                    category = val;
+                                }
+                            }), 
+                           categories.map((value) =>
+                                 DropdownMenuItem(
                                     value: value,
-                                    child: Text(value)
-                                )
-                            ).toList()*/
-
+                                    child: Text(value.category)
+                            )).toList()
                         ),
                         InputNumeric("Precio de venta:", texts[1], false),
                         CustomButton("Guardar", Colors.green, 300, 50, saveProduct)
@@ -132,25 +112,60 @@ class ProdMenuState extends State<ProdMenu>{
       }
   }
 
+    void llenarCampos() async {
 
-  void saveProduct() async {
 
-        String name = texts[0].text.trim();
-        String? imgUrl = product?.url;
+      //cargar categorias.
+      var cats = await DBMan.obtenerCategorias();
+      categories.removeWhere((x) => x.id != -1);
+      setState(() =>categories.addAll(cats));
+
+      //poner los campos.
+      var prod = product;
+      imgProv = const AssetImage('assets/add_img.png');
+    
+      if(prod == null){
+        return;
+      }
+
+      var url = prod.url;
+      var idCat = prod.catId;
+      texts[0].text = prod.name;
+      texts[1].text = '${prod.price}';
+
+      if(url != null){
+          imgProv = NetworkImage(url);
+      }
+      //poner la categoria.
+      if(idCat != null){
+          var cat = categories.firstWhere((element) => element.id == idCat);
+          setState(() => category = cat);
+      }
+    }
+
+    void saveProduct() async {
+
         double price = double.tryParse(texts[1].text) ?? 0;
-
+        String name = texts[0].text;
+        String? imgUrl = product?.url;
+ 
+  
         if(name.isEmpty || price < 0){
             Util.showAlert(context, 'Verifica los datos ingresados por favor');
             return;
         }
         Util.showLoading(context, 'Guardando producto...');
+        
         if(img != null){
             imgUrl = await ApiUtil.uploadImage(img);
         }
+
+        //guardar la categoria.
         var idGenerado = await DBMan.insertar_editar_producto(
-            idProd, name, imgUrl, price
+            idProd, name, imgUrl, price, category.id
         );
-        setState(() { idProd = idGenerado;});
+
+        setState(()=>idProd = idGenerado);
         Util.popDialog(context);
         FocusManager.instance.primaryFocus?.unfocus();
   }

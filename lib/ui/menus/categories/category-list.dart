@@ -21,7 +21,7 @@ class CatList extends StatefulWidget{
 
 class CatListState extends State<CatList>{
 
-  List<Category> catList = [], filtered = [];
+  List<PCategory> catList = [], filtered = [];
   bool loaded = false;
 
   Future<void> cargarCategorias() async{
@@ -66,7 +66,7 @@ class CatListState extends State<CatList>{
           children: [
             Expanded(
               child: ListView.builder(itemBuilder: (context, index){
-                Category prod = filtered[index~/2];
+                PCategory prod = filtered[index~/2];
                 return index.isOdd ? const Divider() :
                 buildListTile(context, Icons.shopping_cart_rounded, prod);
               }, itemCount: filtered.length*2),
@@ -86,7 +86,7 @@ class CatListState extends State<CatList>{
     );
   }
 
-  ListTile buildListTile(context, leadingIcon, Category cat) {
+  ListTile buildListTile(context, leadingIcon, PCategory cat) {
 
 
 
@@ -108,7 +108,7 @@ class CatListState extends State<CatList>{
   }
 
 
-  bool matchCat(String search, Category cat){
+  bool matchCat(String search, PCategory cat){
     return cat.category.toLowerCase().contains(search.toLowerCase());
   }
 }
