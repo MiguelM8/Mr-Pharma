@@ -104,12 +104,15 @@ class ProdMenuState extends State<ProdMenu>{
       );
   }
 
-  void deleteProd(){
+  void deleteProd() async{
       if(idProd == -1){
-          for (var element in texts) { element.clear(); }
-          Util.showSnack(context, 'Campos limpiados');
-          return;
+        texts.forEach((element) => element.clear());
+        return;
       }
+      Util.showLoading(context, 'Eliminando producto...');
+      await DBMan.borrarProducto(idProd);
+      Util.popDialog(context);
+      Util.returnToMenu(context);
   }
 
     void llenarCampos() async {

@@ -163,6 +163,29 @@ class DBMan{
     }
 
 
+    static Future<void> borrarCategoria(int id) async{
+      var con=_getCon();
+      await con.open();
+      await con.query('delete from tb_category where id_category = $id');
+      await con.close();
+    }
+
+  static Future<void> borrarProducto(int id) async{
+    var con=_getCon();
+    await con.open();
+    await con.query('delete from tb_product where id_product = $id');
+    await con.close();
+  }
+
+  static Future<void> borrarProveedor(int id) async{
+    var con = _getCon();
+    await con.open();
+    await con.query('call eliminar_proveedor(@idsup)',
+        substitutionValues: {
+          "idsup": id,
+    });
+    await con.close();
+  }
 }
 
 

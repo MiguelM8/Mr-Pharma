@@ -64,16 +64,20 @@ class SupMenuState extends State<SupMenu>{
         ),
       ),
     );
+
+
   }
 
 
-  void deleteSupplier(){
+  void deleteSupplier() async{
     if(idProv == -1){
-      cleanText();
-      Util.showSnack(context, 'Campos limpiados');
+      texts.forEach((element) => element.clear());
       return;
     }
     Util.showLoading(context, 'Eliminando producto...');
+    await DBMan.borrarProveedor(idProv);
+    Util.popDialog(context);
+    Util.returnToMenu(context);
   }
 
 
@@ -118,7 +122,7 @@ class SupMenuState extends State<SupMenu>{
         break;
       }
     }
-    return true;
+    return valid;
   }
 
 

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+ class Util {
 
-abstract class Util {
+   Util._();
+
+
+  static returnToMenu(BuildContext context){
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
 
   static void showSnack(BuildContext ctx, String txt) => ScaffoldMessenger.of(ctx)
       .showSnackBar(SnackBar(

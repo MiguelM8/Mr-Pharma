@@ -59,14 +59,16 @@ class CatMenuState extends State<CatMenu>{
   }
 
 
-  void deleteCat(){
+  void deleteCat() async{
     if(catId == -1){
       cleanText();
       Util.showSnack(context, 'Campos limpiados');
       return;
     }
     Util.showLoading(context, 'Eliminando producto...');
+    await DBMan.borrarCategoria(catId);
     Util.popDialog(context);
+    Util.returnToMenu(context);
   }
 
 
